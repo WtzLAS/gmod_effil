@@ -38,7 +38,7 @@ jobs:
         with:
           vs-version: '[17.0,17.2)'
       - run: premake5 vs2022
-      - run: ${{ format('msbuild projects/windows/vs2022/lanes.core.sln /p:Configuration=Release /p:Platform={0}', matrix.arch) }}
+      - run: ${{ format('msbuild projects/windows/vs2022/effil.core.sln /p:Configuration=Release /p:Platform={0}', matrix.arch) }}
       - uses: actions/upload-artifact@v3
         with:
           name: ${{ format('Windows {0}', matrix.arch) }}
