@@ -1,0 +1,45 @@
+name: build-artifact
+on: [push]
+jobs:
+  linux-builds:
+    strategy:
+      matrix:
+        arch: ['x86', 'x86_64']
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: 'recursive'
+      - run: git apply --directory=effil/libs/sol 0001-fix-luaL_loadbufferx-redefinition.patch
+      - uses: abel0b/setup-premake@v2.1
+        with:
+          version: '5.0.0-beta1'
+      - run: sudo apt-get install gcc-multilib g++-multilib
+      - run: premake5 gmake
+      - run: ${{ format('make -C projects/linux/gmake config=release_{0}', matrix.arch) }}
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ${{ format('Linux {0}', matrix.arch) }}
+          path: projects/linux/gmake/**/*.dll
+  windows-builds:
+    strategy:
+      matrix:
+        arch: ['Win32', 'x64']
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: 'recursive'
+      - run: git apply --directory=effil/libs/sol 0001-fix-luaL_loadbufferx-redefinition.patch
+      - uses: abel0b/setup-premake@v2.1
+        with:
+          version: '5.0.0-beta1'
+      - uses: microsoft/setup-msbuild@v1.1
+        with:
+          vs-version: '[17.0,17.2)'
+      - run: premake5 vs2022
+      - run: ${{ format('msbuild projects/windows/vs2022/lanes.core.sln /p:Configuration=Release /p:Platform={0}', matrix.arch) }}
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ${{ format('Windows {0}', matrix.arch) }}
+          path: projects/windows/vs2022/**/*.dll
