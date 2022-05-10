@@ -29,10 +29,18 @@ end
 local provider = {}
 provider.id = "effil_perm"
 provider.name = "Effil Permissions"
-
 provider.settingsoptions = {"Anyone", "No one", "Admin", "Whitelist"}
-
-provider.checks = {"allow", "block", function(instance, target, key) return instance.player:IsAdmin(), "This function is admin only" end, function(instance, target, key) return whitelist_map[instance.player:SteamID64()] == true, "This function is whitelisted account only" end}
+provider.defaultsetting = 4
+provider.checks = {
+    "allow",
+    "block",
+    function(instance, target, key)
+        return instance.player:IsAdmin(), "This function is admin only"
+    end,
+    function(instance, target, key)
+        return whitelist_map[instance.player:SteamID64()] == true, "This function is whitelisted account only"
+    end
+}
 
 SF.Permissions.registerCustomProvider(provider, {"effil.thread", "effil.table", "effil.channel", "effil.gc"}, true)
 
